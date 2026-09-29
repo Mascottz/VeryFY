@@ -1,0 +1,46 @@
+{
+  "name": "veryfy-device-inspection",
+  "version": "0.1.0",
+  "description": "VeryFY device inspection desktop foundation",
+  "main": "electron/main.cjs",
+  "author": "MASTECH INNOVATIONS",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "web": "python3 -m http.server 4173 --bind 0.0.0.0",
+    "dist": "electron-builder --win nsis"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
+    "dotenv": "^16.6.1"
+  },
+  "devDependencies": {
+    "electron": "^38.3.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "ng.com.mastechinnovations.veryfy",
+    "productName": "VeryFY",
+    "artifactName": "VeryFY-Setup-${version}.${ext}",
+    "files": [
+      "index.html",
+      "styles.css",
+      "app.js",
+      "electron/**/*",
+      "supabase/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": ["nsis"],
+      "icon": "assets/veryfy.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}

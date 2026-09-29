@@ -1,0 +1,13 @@
+node_modules/
+.npm/
+.env
+.env.*
+!.env.example
+out/
+dist/
+release/
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
