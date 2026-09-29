@@ -43,6 +43,12 @@ function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove("show"), 3200);
 }
 
+function maskSerial(serial) {
+  if (!serial) return "Not available";
+  const value = String(serial);
+  return value.length > 6 ? `${value.slice(0, 3)}••••${value.slice(-3)}` : value;
+}
+
 function updateConnectionState(state) {
   const label = document.getElementById("connection-label");
   const indicator = document.getElementById("connection-indicator");
@@ -50,6 +56,40 @@ function updateConnectionState(state) {
   label.textContent = state.status;
   indicator.classList.toggle("is-ready", state.connected);
   indicator.classList.toggle("is-warning", !state.connected);
+
+  const fields = state.deviceInfo?.fields || {};
+  const model = document.getElementById("device-model");
+  const connection = document.getElementById("device-connection");
+  const ios = document.getElementById("device-ios");
+  const serial = document.getElementById("device-serial");
+  if (fields.DeviceName && model) model.textContent = fields.DeviceName;
+  else if (fields.ProductType && model) model.textContent = fields.ProductType;
+  if (connection) connection.textContent = state.status;
+  if (fields.ProductVersion && ios) ios.textContent = fields.ProductVersion;
+  if (fields.SerialNumber && serial) serial.textContent = maskSerial(fields.SerialNumber);
+}
+
+function updateBatteryMetrics(battery) {
+  if (!battery?.available) return;
+  const health = battery.health === null ? null : `${battery.health}<span>%</span>`;
+  if (health) {
+    ["overview-battery-health", "battery-page-health"].forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) element.innerHTML = health;
+    });
+  }
+  if (battery.cycleCount !== null && battery.cycleCount !== undefined) {
+    ["overview-cycle-count", "battery-page-cycles"].forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) element.textContent = battery.cycleCount;
+    });
+  }
+} 
+
+function applyDeviceScan(result) {
+  if (!result) return;
+  updateConnectionState(result.state);
+  updateBatteryMetrics(result.battery);
 }
 
 function updateAuthState(auth) {
@@ -78,7 +118,7 @@ function closeAuthModal() {
 }
 
 function getCloudBridge() {
-  return window.veryfy || window.veryfyWeb || null;
+  return window.iveryfy || window.iveryfyWeb || null;
 }
 
 async function refreshCloudHistory() {
@@ -93,23 +133,23 @@ function initializeCloudBridge(bridge) {
   bridge.onDeviceState?.(updateConnectionState);
   bridge.getCloudStatus?.().then((cloud) => {
     updateAuthState(cloud);
-    if (cloud?.configured && !cloud?.signedIn) showToast("Sign in to save inspections to VeryFY Cloud");
+    if (cloud?.configured && !cloud?.signedIn) showToast("Sign in to save inspections to iVeryFY Cloud");
   }).catch(() => {});
   bridge.getAuthStatus?.().then(updateAuthState).catch(() => {});
   bridge.onAuthState?.((auth) => {
     updateAuthState(auth);
     if (auth.signedIn) {
       closeAuthModal();
-      showToast("Signed in to VeryFY Cloud");
+      showToast("Signed in to iVeryFY Cloud");
       refreshCloudHistory();
     }
   });
 }
 
-initializeCloudBridge(window.veryfy);
-window.addEventListener("veryfy:web-ready", () => initializeCloudBridge(window.veryfyWeb));
-window.addEventListener("veryfy:web-error", (event) => {
-  if (event.detail) console.warn("VeryFY web cloud bridge error", event.detail);
+initializeCloudBridge(window.iveryfy);
+window.addEventListener("iveryfy:web-ready", () => initializeCloudBridge(window.iveryfyWeb));
+window.addEventListener("iveryfy:web-error", (event) => {
+  if (event.detail) console.warn("iVeryFY web cloud bridge error", event.detail);
 });
 
 navItems.forEach((item) => item.addEventListener("click", () => showView(item.dataset.view)));
@@ -130,7 +170,7 @@ document.getElementById("account-button")?.addEventListener("click", () => {
     bridge?.signOut?.().then((result) => {
       if (result?.ok) {
         updateAuthState(result.auth);
-        showToast("Signed out of VeryFY Cloud");
+        showToast("Signed out of iVeryFY Cloud");
       }
     });
     return;
@@ -161,7 +201,7 @@ document.getElementById("auth-form")?.addEventListener("submit", async (event) =
     if (result.ok) {
       updateAuthState(result.auth);
       closeAuthModal();
-      showToast("Signed in to VeryFY Cloud");
+      showToast("Signed in to iVeryFY Cloud");
       refreshCloudHistory();
     } else {
       error.textContent = result.error || "Sign in could not be completed.";
@@ -205,18 +245,19 @@ document.getElementById("start-scan")?.addEventListener("click", async (event) =
   status.classList.add("show");
   statusText.textContent = "Reading available device information";
 
-  if (window.veryfy?.scanDevice) {
-    const result = await window.veryfy.scanDevice();
+  if (window.iveryfy?.scanDevice) {
+    const result = await window.iveryfy.scanDevice();
     if (!result.ok) {
       statusText.textContent = result.reason || "Connect and trust an iPhone to continue";
       button.disabled = false;
       button.innerHTML = '<svg><use href="#i-usb"/></svg>Try again';
       return;
     }
+    applyDeviceScan(result);
     closeModal();
     button.disabled = false;
     button.innerHTML = '<svg><use href="#i-usb"/></svg>Start scan';
-    showToast("Device scan complete");
+    showToast(result.battery?.available ? "Device and battery scan complete" : "Device scan complete");
     return;
   }
 
@@ -358,7 +399,7 @@ function renderInspectionHistory(records) {
   });
 }
 
-const reportText = `VeryFY Device Inspection\n\nDevice: iPhone 13 Pro\nSerial: F2L4••••7J9\niOS: 18.6.2\nInspection: Today, 10:42\n\nOverall condition: Good, 78/100\nBattery health: 87%\nCycle count: 643\nParts: 3 verified, 1 needs review\nHardware tests: 8 of 10 complete\n\nPowered by MASTECH INNOVATIONS\ninfo@mastechinnovations.com.ng\n+234 913 882 5300`;
+const reportText = `iVeryFY Device Inspection\n\nDevice: iPhone 13 Pro\nSerial: F2L4••••7J9\niOS: 18.6.2\nInspection: Today, 10:42\n\nOverall condition: Good, 78/100\nBattery health: 87%\nCycle count: 643\nParts: 3 verified, 1 needs review\nHardware tests: 8 of 10 complete\n\nPowered by MASTECH INNOVATIONS\ninfo@mastechinnovations.com.ng\n+234 913 882 5300`;
 
 const inspectionPayload = {
   deviceModel: "iPhone 13 Pro",
@@ -390,7 +431,7 @@ document.getElementById("save-inspection")?.addEventListener("click", async (eve
   button.disabled = false;
   button.innerHTML = original;
   if (result.ok) {
-    showToast("Inspection saved to VeryFY Cloud");
+    showToast("Inspection saved to iVeryFY Cloud");
     refreshCloudHistory();
   } else if (!result.configured) {
     showToast("Add Supabase credentials to enable cloud saving");
@@ -407,7 +448,7 @@ document.getElementById("export-report")?.addEventListener("click", () => {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = "veryfy-inspection-report.txt";
+  anchor.download = "iveryfy-inspection-report.txt";
   anchor.click();
   URL.revokeObjectURL(url);
   showToast("Report exported successfully");

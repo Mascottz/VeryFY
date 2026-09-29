@@ -1,18 +1,17 @@
-const os = require('os');
 const path = require('path');
-const fs = require('fs');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
+const { NativeDiagnosticsAdapter } = require('./diagnostics-adapter.cjs');
 
 const execFileAsync = promisify(execFile);
 
-function binaryCandidates() {
+function binaryCandidates(tool) {
   const names = process.platform === 'win32'
-    ? ['idevice_id.exe', 'idevice_id']
-    : ['idevice_id'];
+    ? [`${tool}.exe`, tool]
+    : [tool];
 
   const roots = [
-    process.env.VERYFY_IDEVICE_BIN,
+    process.env.IVERYFY_IDEVICE_BIN,
     path.join(process.resourcesPath || '', 'bin', process.platform, process.arch),
     path.join(__dirname, '..', 'bin', process.platform, process.arch),
   ].filter(Boolean);
@@ -23,10 +22,10 @@ function binaryCandidates() {
   ];
 }
 
-async function runFirstAvailable(args = []) {
-  for (const candidate of binaryCandidates()) {
+async function runFirstAvailable(tool, args = []) {
+  for (const candidate of binaryCandidates(tool)) {
     try {
-      const result = await execFileAsync(candidate, args, { windowsHide: true, timeout: 3500 });
+      const result = await execFileAsync(candidate, args, { windowsHide: true, timeout: 5000 });
       return { binary: candidate, stdout: result.stdout || '' };
     } catch (error) {
       if (error && error.code === 'ENOENT') continue;
@@ -83,10 +82,42 @@ async function getAppleUsbState() {
 }
 
 async function listTrustedDevices() {
-  const result = await runFirstAvailable(['-l']);
+  const result = await runFirstAvailable('idevice_id', ['-l']);
   if (!result) return { available: false, udids: [] };
   const udids = result.stdout.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
   return { available: true, udids, binary: result.binary };
+}
+
+function parseDeviceInfo(output) {
+  const fields = {};
+  output.split(/\r?\n/).forEach((line) => {
+    const separator = line.indexOf(':');
+    if (separator === -1) return;
+    const key = line.slice(0, separator).trim();
+    const value = line.slice(separator + 1).trim();
+    if (key && value) fields[key] = value;
+  });
+  return fields;
+}
+
+async function readDeviceInfo(udid) {
+  const result = await runFirstAvailable('ideviceinfo', ['-u', udid]);
+  if (!result) return { available: false, fields: {}, reason: 'ideviceinfo is not available.' };
+  const allFields = parseDeviceInfo(result.stdout);
+  const fields = {};
+  [
+    'DeviceName',
+    'ProductType',
+    'ProductVersion',
+    'SerialNumber',
+    'UniqueDeviceID',
+    'InternationalMobileEquipmentIdentity',
+    'WiFiAddress',
+    'BluetoothAddress',
+  ].forEach((key) => {
+    if (allFields[key]) fields[key] = allFields[key];
+  });
+  return { available: true, fields, binary: result.binary };
 }
 
 class DeviceBridge {
@@ -94,6 +125,20 @@ class DeviceBridge {
     this.timer = null;
     this.lastKey = '';
     this.onState = null;
+    this.cachedUdid = null;
+    this.cachedInfo = null;
+    this.cachedInfoAt = 0;
+    this.diagnostics = new NativeDiagnosticsAdapter();
+  }
+
+  async getCachedDeviceInfo(udid) {
+    if (!udid) return null;
+    const now = Date.now();
+    if (this.cachedUdid === udid && this.cachedInfo && now - this.cachedInfoAt < 5000) return this.cachedInfo;
+    this.cachedUdid = udid;
+    this.cachedInfo = await readDeviceInfo(udid);
+    this.cachedInfoAt = now;
+    return this.cachedInfo;
   }
 
   async readState() {
@@ -104,6 +149,7 @@ class DeviceBridge {
     ]);
 
     const connected = trusted.udids.length > 0 || appleUsb.detected;
+    const deviceInfo = trusted.udids[0] ? await this.getCachedDeviceInfo(trusted.udids[0]) : null;
     let status = 'No device connected';
     if (connected && trusted.udids.length > 0) status = 'Connected and ready';
     else if (connected) status = 'iPhone detected, trust approval required';
@@ -116,6 +162,7 @@ class DeviceBridge {
       udids: trusted.udids,
       appleService,
       appleUsb,
+      deviceInfo,
       trustedAvailable: trusted.available,
       timestamp: new Date().toISOString(),
     };
@@ -124,14 +171,17 @@ class DeviceBridge {
   async checkPrerequisites() {
     const appleService = await getAppleServiceState();
     const trusted = await listTrustedDevices();
+    const deviceInfo = await runFirstAvailable('ideviceinfo', ['-h']);
     return {
       platform: process.platform,
       appleService,
       communicationBinaryAvailable: trusted.available,
+      deviceInfoBinaryAvailable: Boolean(deviceInfo),
       driverReady: appleService.installed || trusted.available,
       recommendations: [
         ...(!appleService.installed && process.platform === 'win32' ? ['Install Apple Devices from the Microsoft Store.'] : []),
-        ...(!trusted.available ? ['Add the VeryFY iPhone communication binaries before production packaging.'] : []),
+        ...(!trusted.available ? ['Add the iVeryFY iPhone communication binaries before production packaging.'] : []),
+        ...(!deviceInfo ? ['Add ideviceinfo to enable device identity readings.'] : []),
       ],
     };
   }
@@ -140,7 +190,13 @@ class DeviceBridge {
     this.onState = onState;
     const tick = async () => {
       const next = await this.readState();
-      const key = JSON.stringify({ connected: next.connected, status: next.status, count: next.deviceCount });
+      const key = JSON.stringify({
+        connected: next.connected,
+        status: next.status,
+        count: next.deviceCount,
+        model: next.deviceInfo?.fields?.ProductType || '',
+        serial: next.deviceInfo?.fields?.SerialNumber || '',
+      });
       if (key !== this.lastKey) {
         this.lastKey = key;
         this.onState?.(next);
@@ -158,9 +214,12 @@ class DeviceBridge {
   async scan() {
     const state = await this.readState();
     if (!state.connected) return { ok: false, state, reason: 'No trusted iPhone is connected.' };
+    const udid = state.udids[0];
+    const battery = udid ? await this.diagnostics.readBattery(udid) : { available: false, reason: 'No trusted device identifier is available.' };
     return {
       ok: true,
       state,
+      battery,
       diagnostics: {
         available: state.trustedAvailable,
         message: state.trustedAvailable ? 'Device communication is ready.' : 'Trusted device communication binary is not bundled yet.',

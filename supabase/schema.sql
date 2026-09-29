@@ -1,4 +1,4 @@
--- VeryFY cloud schema
+-- iVeryFY cloud schema
 -- Run this in the Supabase SQL editor after creating a project.
 -- The desktop app uses the publishable anon key only. Never ship a service role key.
 

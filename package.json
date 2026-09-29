@@ -1,7 +1,7 @@
 {
-  "name": "veryfy-device-inspection",
+  "name": "iveryfy-device-inspection",
   "version": "0.1.0",
-  "description": "VeryFY device inspection desktop foundation",
+  "description": "iVeryFY device inspection desktop foundation",
   "main": "electron/main.cjs",
   "author": "MASTECH INNOVATIONS",
   "license": "UNLICENSED",
@@ -12,11 +12,13 @@
     "web": "python3 -m http.server 4173 --bind 0.0.0.0",
     "build:web": "node scripts/generate-web-config.cjs",
     "vercel-build": "npm run build:web",
+    "test:diagnostics": "node scripts/test-diagnostics.cjs",
     "dist": "electron-builder --win nsis"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
     "dotenv": "^16.6.1",
+    "plist": "^3.1.1",
     "ws": "^8.22.0"
   },
   "devDependencies": {
@@ -24,9 +26,9 @@
     "electron-builder": "^26.0.12"
   },
   "build": {
-    "appId": "ng.com.mastechinnovations.veryfy",
-    "productName": "VeryFY",
-    "artifactName": "VeryFY-Setup-${version}.${ext}",
+    "appId": "ng.com.mastechinnovations.iveryfy",
+    "productName": "iVeryFY",
+    "artifactName": "iVeryFY-Setup-${version}.${ext}",
     "files": [
       "index.html",
       "styles.css",
@@ -39,7 +41,7 @@
       "target": [
         "nsis"
       ],
-      "icon": "assets/veryfy.ico"
+      "icon": "assets/iveryfy.ico"
     },
     "nsis": {
       "oneClick": false,

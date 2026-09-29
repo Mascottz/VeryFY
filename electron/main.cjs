@@ -14,7 +14,7 @@ function createWindow() {
     minWidth: 1080,
     minHeight: 720,
     backgroundColor: '#f5f8fa',
-    title: 'VeryFY | Device Inspection',
+    title: 'iVeryFY | Device Inspection',
     webPreferences: {
       preload: path.join(__dirname, 'preload.cjs'),
       contextIsolation: true,

@@ -11,3 +11,5 @@ release/
 Thumbs.db
 .vscode/
 .idea/
+
+vercel-config.js

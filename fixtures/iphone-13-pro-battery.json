@@ -1,0 +1,12 @@
+{
+  "AppleSmartBattery": {
+    "DesignCapacity": 3095,
+    "AppleRawMaxCapacity": 2693,
+    "AppleRawCurrentCapacity": 2214,
+    "CycleCount": 643,
+    "Temperature": 2848,
+    "Voltage": 3921,
+    "IsCharging": false,
+    "ExternalConnected": false
+  }
+}

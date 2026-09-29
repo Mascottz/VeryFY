@@ -1,5 +1,5 @@
 (() => {
-  const config = window.VERYFY_CONFIG || {};
+  const config = window.IVERYFY_CONFIG || {};
   if (!config.supabaseUrl || !config.supabaseAnonKey) return;
 
   import('https://esm.sh/@supabase/supabase-js@2')
@@ -13,7 +13,7 @@
       });
 
       const authState = { configured: true, signedIn: false, email: null };
-      const notify = () => window.dispatchEvent(new CustomEvent('veryfy:web-auth', { detail: { ...authState } }));
+      const notify = () => window.dispatchEvent(new CustomEvent('iveryfy:web-auth', { detail: { ...authState } }));
       const syncSession = (session) => {
         authState.signedIn = Boolean(session?.user);
         authState.email = session?.user?.email || null;
@@ -23,7 +23,7 @@
       client.auth.getSession().then(({ data }) => syncSession(data.session));
       client.auth.onAuthStateChange((_event, session) => syncSession(session));
 
-      window.veryfyWeb = {
+      window.iveryfyWeb = {
         isWeb: true,
         async getCloudStatus() {
           return { ...authState, provider: 'Supabase', message: 'Cloud storage is configured.' };
@@ -33,8 +33,8 @@
         },
         onAuthState(callback) {
           const listener = (event) => callback(event.detail);
-          window.addEventListener('veryfy:web-auth', listener);
-          return () => window.removeEventListener('veryfy:web-auth', listener);
+          window.addEventListener('iveryfy:web-auth', listener);
+          return () => window.removeEventListener('iveryfy:web-auth', listener);
         },
         async signIn(email, password) {
           const { data, error } = await client.auth.signInWithPassword({ email, password });
@@ -72,9 +72,9 @@
           return { ok: true, configured: true, authenticated: true, inspections: data || [] };
         },
       };
-      window.dispatchEvent(new CustomEvent('veryfy:web-ready'));
+      window.dispatchEvent(new CustomEvent('iveryfy:web-ready'));
     })
     .catch((error) => {
-      window.dispatchEvent(new CustomEvent('veryfy:web-error', { detail: error.message }));
+      window.dispatchEvent(new CustomEvent('iveryfy:web-error', { detail: error.message }));
     });
 })();

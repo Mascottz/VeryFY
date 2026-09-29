@@ -1,6 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('veryfy', {
+contextBridge.exposeInMainWorld('iveryfy', {
   isDesktop: true,
   getPrerequisites: () => ipcRenderer.invoke('device:prerequisites'),
   scanDevice: () => ipcRenderer.invoke('device:scan'),

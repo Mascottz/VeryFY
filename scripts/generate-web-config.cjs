@@ -7,6 +7,6 @@ const config = {
   supabaseAnonKey: process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || '',
 };
 
-const output = `window.VERYFY_CONFIG = ${JSON.stringify(config)};\n`;
+const output = `window.IVERYFY_CONFIG = ${JSON.stringify(config)};\n`;
 fs.writeFileSync(path.join(process.cwd(), 'vercel-config.js'), output, 'utf8');
-console.log(`VeryFY web configuration generated. Supabase configured: ${Boolean(config.supabaseUrl && config.supabaseAnonKey)}`);
+console.log(`iVeryFY web configuration generated. Supabase configured: ${Boolean(config.supabaseUrl && config.supabaseAnonKey)}`);

@@ -1,10 +1,10 @@
-# VeryFY
+# iVeryFY
 
 ## Device Inspection
 
-VeryFY is my premium iPhone inspection platform for repair shops, resellers and anyone who needs a clearer view of a device before making a decision.
+iVeryFY is my premium iPhone inspection platform for repair shops, resellers and anyone who needs a clearer view of a device before making a decision.
 
-VeryFY is being built with a calm, focused interface and a read-only diagnostic workflow. I want every result to be understandable, traceable and honest about its confidence level.
+iVeryFY is being built with a calm, focused interface and a read-only diagnostic workflow. I want every result to be understandable, traceable and honest about its confidence level.
 
 **Clarity before commitment.**
 
@@ -12,7 +12,7 @@ VeryFY is being built with a calm, focused interface and a read-only diagnostic 
 
 The current foundation includes:
 
-- VeryFY brand identity and custom inspection mark
+- iVeryFY brand identity and custom inspection mark
 - Premium dashboard interface
 - Battery diagnostics view
 - Parts and history view
@@ -25,12 +25,14 @@ The current foundation includes:
 - Simulated inspection data for the UI prototype
 - Report export and print actions
 - Windows desktop shell preparation with Electron
-- USB device bridge preparation
+- USB device bridge with automatic connection polling
 - Apple support prerequisite checks
+- Trusted iPhone identity reading through ideviceinfo when available
+- Battery diagnostic adapter with fixture-based validation
 - Optional Supabase cloud storage integration
 - Supabase email and password sign-in flow
 - Authenticated inspection saving and cloud history hooks
-- VeryFY inspection database schema
+- iVeryFY inspection database schema
 
 ## Current state
 
@@ -64,7 +66,7 @@ npm install
 npm run dev
 ```
 
-The desktop shell loads the same VeryFY interface and exposes a safe bridge for device detection and cloud operations.
+The desktop shell loads the same iVeryFY interface and exposes a safe bridge for device detection and cloud operations.
 
 ## Supabase setup
 
@@ -76,7 +78,7 @@ I use Supabase for inspection history, report metadata, technician accounts and 
 4. Copy `.env.example` to `.env`.
 5. Add the project URL and publishable anon key to `.env`.
 6. Create a test technician under Authentication, Users.
-7. Sign in from the VeryFY account button before saving inspection records.
+7. Sign in from the iVeryFY account button before saving inspection records.
 8. Keep row-level security enabled before using the project in production.
 
 ```bash
@@ -88,23 +90,26 @@ I keep the local Supabase settings in `.env`, which is ignored by Git. I will ne
 ## Project layout
 
 ```text
-index.html                 VeryFY interface
+index.html                 iVeryFY interface
 styles.css                 Visual system and responsive layout
 app.js                     Interface interactions and desktop bridge hooks
 electron/main.cjs          Desktop process
 electron/preload.cjs      Safe renderer bridge
-electron/device-bridge.cjs Windows device detection foundation
-electron/supabase.cjs      Cloud storage service
-supabase/schema.sql        Inspection history schema
-assets/veryfy-logo.svg     VeryFY application mark
-assets/veryfy.ico          Windows application icon
+electron/device-bridge.cjs      Windows device detection foundation
+electron/diagnostics-adapter.cjs Battery diagnostic adapter
+electron/supabase.cjs             Cloud storage service
+fixtures/iphone-13-pro-battery.json Diagnostic fixture
+scripts/test-diagnostics.cjs      Diagnostic normalization test
+supabase/schema.sql               Inspection history schema
+assets/iveryfy-logo.svg           iVeryFY application mark
+assets/iveryfy.ico          Windows application icon
 ```
 
 ## Planned build order
 
 1. Finish the Windows prerequisite and device connection flow.
 2. Bundle and test the iPhone communication layer.
-3. Read the first real device values, starting with device identity and battery diagnostics.
+3. Validate native battery diagnostics on Windows with a trusted iPhone.
 4. Add model and iOS compatibility rules.
 5. Add guided hardware tests.
 6. Add authenticated Supabase history and report storage.
@@ -114,7 +119,7 @@ assets/veryfy.ico          Windows application icon
 ## Brand reference
 
 ```text
-VeryFY
+iVeryFY
 Device Inspection
 
 Clarity before commitment.
