@@ -77,9 +77,9 @@
         </div>
         <div class="breadcrumb"><span>Workspace</span><svg><use href="#i-chevron"/></svg><strong id="breadcrumb-current">Overview</strong></div>
         <div class="topbar-actions">
-          <div class="connection-state" id="connection-state"><i id="connection-indicator"></i><span id="connection-label">Service ready</span></div>
+          <div class="connection-state" id="connection-state"><i id="connection-indicator"></i><span id="connection-label">No device connected</span></div>
           <button class="icon-button mobile-menu" id="mobile-menu" aria-label="Open menu"><span></span><span></span><span></span></button>
-          <button class="account-button" id="account-button" aria-label="Open account"><span class="avatar">AM</span><span class="account-label">Sign in</span></button>
+          <div class="account-wrap"><button class="account-button" id="account-button" aria-label="Open account"><span class="avatar avatar-placeholder"><svg><use href="#i-settings"/></svg></span><span class="account-label">Sign in</span></button><div class="account-menu" id="account-menu" aria-hidden="true"><span class="small-label">WORKSPACE ACCOUNT</span><strong id="account-email">Not signed in</strong><button class="sign-out-button" id="sign-out-button" type="button">Sign out</button></div></div>
         </div>
       </header>
 
@@ -101,25 +101,25 @@
                   <div class="device-icon"><svg><use href="#i-parts"/></svg></div>
                   <div>
                     <div class="small-label light-label">CONNECTED DEVICE</div>
-                    <h2 id="device-model">iPhone 13 Pro</h2>
-                    <div class="device-meta"><span class="live-dot"></span><span id="device-connection">Connected via USB</span></div>
+                    <h2 id="device-model">No iPhone connected</h2>
+                    <div class="device-meta"><span class="live-dot offline-dot" id="device-status-dot"></span><span id="device-connection">Connect via USB to begin</span></div>
                   </div>
                 </div>
                 <button class="ghost-icon light" id="device-menu" aria-label="Device options">•••</button>
               </div>
               <div class="device-divider"></div>
               <div class="device-card-bottom">
-                <div><span class="small-label light-label">iOS VERSION</span><strong id="device-ios">18.6.2</strong></div>
-                <div><span class="small-label light-label">SERIAL NUMBER</span><strong id="device-serial">F2L4••••7J9</strong></div>
-                <div><span class="small-label light-label">LAST SCAN</span><strong>Today, 10:42</strong></div>
+                <div><span class="small-label light-label">iOS VERSION</span><strong id="device-ios">Not available</strong></div>
+                <div><span class="small-label light-label">SERIAL NUMBER</span><strong id="device-serial">Not available</strong></div>
+                <div><span class="small-label light-label">LAST SCAN</span><strong id="last-scan">Not scanned</strong></div>
               </div>
             </article>
 
             <article class="condition-card">
-              <div class="card-topline"><span class="small-label">OVERALL CONDITION</span><span class="confidence"><i></i>High confidence</span></div>
+              <div class="card-topline"><span class="small-label">OVERALL CONDITION</span><span class="confidence neutral-confidence"><i></i>Awaiting scan</span></div>
               <div class="condition-body">
-                <div class="score-ring"><div><strong>78</strong><span>/100</span></div></div>
-                <div class="condition-copy"><h2>Good condition</h2><p>Ready for a confident resale assessment.</p><button class="text-button" data-view-target="reports">View assessment <svg><use href="#i-arrow"/></svg></button></div>
+                <div class="score-ring empty-ring"><div><strong>--</strong><span>/100</span></div></div>
+                <div class="condition-copy"><h2>Connect a device</h2><p>Run an inspection to see the condition summary.</p><button class="text-button" id="condition-connect">Connect device <svg><use href="#i-arrow"/></svg></button></div>
               </div>
             </article>
           </div>
@@ -128,26 +128,26 @@
             <article class="metric-card">
               <div class="metric-icon battery-tone"><svg><use href="#i-battery"/></svg></div>
               <div class="metric-label">Battery health</div>
-              <div class="metric-value">87<span>%</span></div>
-              <div class="metric-note positive"><svg><use href="#i-check"/></svg> Within healthy range</div>
+              <div class="metric-value" id="overview-health-value">--</div>
+              <div class="metric-note neutral"><svg><use href="#i-info"/></svg> Awaiting scan</div>
             </article>
             <article class="metric-card">
               <div class="metric-icon glacier-tone"><svg><use href="#i-parts"/></svg></div>
               <div class="metric-label">Parts found</div>
-              <div class="metric-value">4<span class="metric-unit"> records</span></div>
-              <div class="metric-note neutral"><svg><use href="#i-info"/></svg> 1 needs review</div>
+              <div class="metric-value">0<span class="metric-unit"> records</span></div>
+              <div class="metric-note neutral"><svg><use href="#i-info"/></svg> No scan completed</div>
             </article>
             <article class="metric-card">
               <div class="metric-icon seafoam-tone"><svg><use href="#i-tests"/></svg></div>
               <div class="metric-label">Tests passed</div>
-              <div class="metric-value">8<span class="metric-unit"> / 10</span></div>
-              <div class="metric-note positive"><svg><use href="#i-check"/></svg> 80% complete</div>
+              <div class="metric-value">0<span class="metric-unit"> / 0</span></div>
+              <div class="metric-note neutral"><svg><use href="#i-info"/></svg> Connect a device</div>
             </article>
             <article class="metric-card">
               <div class="metric-icon slate-tone"><svg><use href="#i-report"/></svg></div>
               <div class="metric-label">Report status</div>
-              <div class="metric-value word-value">Ready</div>
-              <div class="metric-note neutral"><svg><use href="#i-download"/></svg> Export available</div>
+              <div class="metric-value word-value">Not ready</div>
+              <div class="metric-note neutral"><svg><use href="#i-info"/></svg> Complete an inspection</div>
             </article>
           </div>
 
@@ -155,83 +155,75 @@
             <article class="panel battery-panel">
               <div class="panel-header"><div><div class="eyebrow">POWER SYSTEM</div><h3>Battery snapshot</h3></div><button class="panel-link" data-view-target="battery">Details <svg><use href="#i-arrow"/></svg></button></div>
               <div class="battery-snapshot">
-                <div class="battery-gauge"><div class="gauge-inner"><strong id="overview-battery-health">87<span>%</span></strong><small>maximum capacity</small></div></div>
+                <div class="battery-gauge empty-gauge"><div class="gauge-inner"><strong id="overview-battery-health">--</strong><small>maximum capacity</small></div></div>
                 <div class="battery-detail-list">
-                  <div><span>Cycle count</span><strong id="overview-cycle-count">643</strong></div>
-                  <div><span>Full-charge capacity</span><strong>2,951 mAh</strong></div>
-                  <div><span>Temperature</span><strong>28°C <i class="status-dot good"></i></strong></div>
+                  <div><span>Cycle count</span><strong id="overview-cycle-count">--</strong></div>
+                  <div><span>Full-charge capacity</span><strong id="overview-full-capacity">--</strong></div>
+                  <div><span>Temperature</span><strong id="overview-temperature">--</strong></div>
                 </div>
               </div>
-              <div class="panel-footnote"><svg><use href="#i-info"/></svg> Battery health is an estimate based on available device diagnostics.</div>
+              <div class="panel-footnote"><svg><use href="#i-info"/></svg> Connect an iPhone to read available battery diagnostics.</div>
             </article>
 
             <article class="panel parts-panel">
               <div class="panel-header"><div><div class="eyebrow">COMPONENT RECORDS</div><h3>Parts &amp; history</h3></div><button class="panel-link" data-view-target="parts">View all <svg><use href="#i-arrow"/></svg></button></div>
-              <div class="parts-list">
-                <div class="part-row"><div class="part-symbol display-symbol"><svg><use href="#i-parts"/></svg></div><div class="part-name"><strong>Display</strong><span>Apple part record</span></div><div class="part-status success"><i></i>Genuine</div></div>
-                <div class="part-row"><div class="part-symbol battery-symbol"><svg><use href="#i-battery"/></svg></div><div class="part-name"><strong>Battery</strong><span>Verification unavailable</span></div><div class="part-status warning"><i></i>Unknown</div></div>
-                <div class="part-row"><div class="part-symbol camera-symbol"><svg><use href="#i-tests"/></svg></div><div class="part-name"><strong>Rear camera</strong><span>Apple part record</span></div><div class="part-status success"><i></i>Genuine</div></div>
-              </div>
+              <div class="parts-list"><div class="panel-empty compact-empty"><svg><use href="#i-parts"/></svg><strong>No component records yet</strong><span>Connect a device to inspect available part history.</span></div></div>
             </article>
           </div>
 
           <div class="section-grid two-columns bottom-grid">
             <article class="panel test-progress-panel">
               <div class="panel-header"><div><div class="eyebrow">DIAGNOSTICS</div><h3>Hardware test progress</h3></div><button class="panel-link" data-view-target="tests">Continue <svg><use href="#i-arrow"/></svg></button></div>
-              <div class="progress-summary"><div><strong>8</strong><span>of 10 tests passed</span></div><span class="progress-percent">80%</span></div>
-              <div class="progress-track"><span style="width:80%"></span></div>
-              <div class="test-mini-list"><span><i class="test-state passed">✓</i>Display</span><span><i class="test-state passed">✓</i>Cameras</span><span><i class="test-state passed">✓</i>Audio</span><span><i class="test-state pending">•</i>Face ID</span></div>
+              <div class="progress-summary"><div><strong id="overview-tests-count">0</strong><span>tests ready</span></div><span class="progress-percent" id="overview-tests-percent">0%</span></div>
+              <div class="progress-track"><span id="overview-tests-progress" style="width:0%"></span></div>
+              <div class="test-mini-list"><span class="empty-mini-list">Connect a device to begin the test suite.</span></div>
             </article>
             <article class="panel next-step-panel">
-              <div class="next-step-mark"><svg><use href="#i-spark"/></svg></div>
-              <div><div class="eyebrow">RECOMMENDED NEXT STEP</div><h3>Complete the last two tests</h3><p>Face ID and physical buttons still need confirmation before the report is final.</p><button class="secondary-button" data-view-target="tests">Open test suite <svg><use href="#i-arrow"/></svg></button></div>
+              <div class="next-step-mark"><svg><use href="#i-usb"/></svg></div>
+              <div><div class="eyebrow">NEXT STEP</div><h3>Connect an iPhone</h3><p>Use a USB cable and approve the Trust prompt to start an inspection.</p><button class="secondary-button" id="next-connect" data-view-target="overview">Connect device <svg><use href="#i-arrow"/></svg></button></div>
             </article>
           </div>
 
           <div class="panel recent-panel">
             <div class="panel-header"><div><div class="eyebrow">RECENT ACTIVITY</div><h3>Inspection history</h3></div><button class="panel-link" data-view-target="history">See history <svg><use href="#i-arrow"/></svg></button></div>
-            <div class="table-wrap"><table><thead><tr><th>Device</th><th>Condition</th><th>Battery</th><th>Inspected</th><th>Status</th><th></th></tr></thead><tbody id="recent-table-body">
-              <tr><td><div class="table-device"><span class="table-device-icon"><svg><use href="#i-parts"/></svg></span><span><strong>iPhone 13 Pro</strong><small>F2L4••••7J9</small></span></div></td><td><span class="condition-text">Good <small>78/100</small></span></td><td>87%</td><td>Today, 10:42</td><td><span class="table-status ready"><i></i>Report ready</span></td><td><button class="row-arrow" aria-label="Open inspection"><svg><use href="#i-chevron"/></svg></button></td></tr>
-              <tr><td><div class="table-device"><span class="table-device-icon"><svg><use href="#i-parts"/></svg></span><span><strong>iPhone 12</strong><small>G6T8••••2Q1</small></span></div></td><td><span class="condition-text">Fair <small>64/100</small></span></td><td>79%</td><td>Yesterday, 16:08</td><td><span class="table-status review"><i></i>Needs review</span></td><td><button class="row-arrow" aria-label="Open inspection"><svg><use href="#i-chevron"/></svg></button></td></tr>
-            </tbody></table></div>
+            <div class="table-wrap"><table><thead><tr><th>Device</th><th>Condition</th><th>Battery</th><th>Inspected</th><th>Status</th><th></th></tr></thead><tbody id="recent-table-body"><tr><td colspan="6"><span class="empty-history">No inspections yet. Connect a device to create the first record.</span></td></tr></tbody></table></div>
           </div>
         </section>
 
         <section class="view" data-view-panel="battery">
           <div class="page-heading"><div><div class="eyebrow">POWER SYSTEM</div><h1>Battery diagnostics</h1><p>Read the available battery metrics and understand what they mean.</p></div><button class="secondary-button" id="refresh-battery"><svg><use href="#i-history"/></svg>Refresh data</button></div>
-          <div class="battery-hero panel"><div class="battery-hero-main"><div class="battery-gauge large"><div class="gauge-inner"><strong id="battery-page-health">87<span>%</span></strong><small>maximum capacity</small></div></div><div><span class="status-badge success"><i></i>Within healthy range</span><h2>Battery condition is good</h2><p>The available readings indicate a battery with usable capacity. Always consider cycle count and service warnings together.</p></div></div><div class="confidence-box"><span class="small-label">READING CONFIDENCE</span><strong>High</strong><span>Based on 6 available metrics</span></div></div>
-          <div class="metric-grid battery-metrics"><article class="metric-card"><div class="metric-label">Cycle count</div><div class="metric-value" id="battery-page-cycles">643</div><div class="metric-note neutral">One cycle equals 100% used capacity</div></article><article class="metric-card"><div class="metric-label">Full-charge capacity</div><div class="metric-value small-metric">2,951<span class="metric-unit"> mAh</span></div><div class="metric-note neutral">Estimated current capacity</div></article><article class="metric-card"><div class="metric-label">Design capacity</div><div class="metric-value small-metric">3,095<span class="metric-unit"> mAh</span></div><div class="metric-note neutral">Original rated capacity</div></article><article class="metric-card"><div class="metric-label">Temperature</div><div class="metric-value">28<span class="metric-unit">°C</span></div><div class="metric-note positive"><svg><use href="#i-check"/></svg> Normal operating range</div></article></div>
-          <div class="section-grid two-columns"><article class="panel"><div class="panel-header"><div><div class="eyebrow">INTERPRETATION</div><h3>What this means</h3></div></div><div class="interpretation-list"><div><span class="interpretation-number">01</span><div><strong>Capacity remains usable</strong><p>At 87%, the battery has retained most of its original capacity.</p></div></div><div><span class="interpretation-number">02</span><div><strong>Cycles deserve context</strong><p>Cycle count is useful when considered alongside capacity and device age.</p></div></div><div><span class="interpretation-number">03</span><div><strong>Service history needs review</strong><p>The available battery part record is marked Unknown. Verify before resale.</p></div></div></div></article><article class="panel soft-callout"><div class="callout-icon"><svg><use href="#i-info"/></svg></div><div><div class="eyebrow">IMPORTANT NOTE</div><h3>Diagnostics are directional</h3><p>iVeryFY reports the data available from the device. It does not replace physical inspection or Apple service records.</p><button class="text-button" data-view-target="parts">Review parts history <svg><use href="#i-arrow"/></svg></button></div></article></div>
+          <div class="battery-hero panel"><div class="battery-hero-main"><div class="battery-gauge large"><div class="gauge-inner"><strong id="battery-page-health">--</strong><small>maximum capacity</small></div></div><div><span class="status-badge neutral-badge"><i></i>Awaiting scan</span><h2>Connect a device to begin</h2><p>Battery readings will appear here after a trusted iPhone is scanned.</p></div></div><div class="confidence-box"><span class="small-label">READING CONFIDENCE</span><strong>Not available</strong><span>Complete a device scan first</span></div></div>
+          <div class="metric-grid battery-metrics"><article class="metric-card"><div class="metric-label">Cycle count</div><div class="metric-value" id="battery-page-cycles">--</div><div class="metric-note neutral">One cycle equals 100% used capacity</div></article><article class="metric-card"><div class="metric-label">Full-charge capacity</div><div class="metric-value small-metric" id="battery-page-full-capacity">--</div><div class="metric-note neutral">Estimated current capacity</div></article><article class="metric-card"><div class="metric-label">Design capacity</div><div class="metric-value small-metric" id="battery-page-design-capacity">--</div><div class="metric-note neutral">Original rated capacity</div></article><article class="metric-card"><div class="metric-label">Temperature</div><div class="metric-value" id="battery-page-temperature">--</div><div class="metric-note neutral"><svg><use href="#i-info"/></svg> Awaiting scan</div></article></div>
+          <div class="section-grid two-columns"><article class="panel"><div class="panel-header"><div><div class="eyebrow">INTERPRETATION</div><h3>What this means</h3></div></div><div class="interpretation-list"><div><span class="interpretation-number">01</span><div><strong>Capacity remains usable</strong><p>Connect a device to see how much capacity is available.</p></div></div><div><span class="interpretation-number">02</span><div><strong>Cycles deserve context</strong><p>Cycle count will be shown when the device provides it.</p></div></div><div><span class="interpretation-number">03</span><div><strong>Service history needs review</strong><p>Battery service information will appear after the scan.</p></div></div></div></article><article class="panel soft-callout"><div class="callout-icon"><svg><use href="#i-info"/></svg></div><div><div class="eyebrow">IMPORTANT NOTE</div><h3>Diagnostics are directional</h3><p>iVeryFY reports the data available from the device. It does not replace physical inspection or Apple service records.</p><button class="text-button" data-view-target="parts">Review parts history <svg><use href="#i-arrow"/></svg></button></div></article></div>
         </section>
 
         <section class="view" data-view-panel="parts">
           <div class="page-heading"><div><div class="eyebrow">COMPONENT RECORDS</div><h1>Parts &amp; history</h1><p>See the available component status and the confidence behind each result.</p></div><button class="secondary-button" id="parts-info"><svg><use href="#i-info"/></svg>How this works</button></div>
-          <div class="parts-summary panel"><div class="parts-summary-mark"><svg><use href="#i-parts"/></svg></div><div><span class="small-label">AVAILABLE RECORDS</span><strong>4 components found</strong><p>One component needs review. No conclusion is drawn when a record is not available.</p></div><div class="summary-side"><span class="status-badge warning"><i></i>1 needs review</span><span>Scanned today, 10:42</span></div></div>
-          <div class="parts-detail-grid"><article class="part-detail-card"><div class="detail-card-head"><div class="part-symbol display-symbol"><svg><use href="#i-parts"/></svg></div><span class="status-badge success"><i></i>Genuine</span></div><h3>Display</h3><p>Apple part record found for this component.</p><div class="detail-meta"><span>Source</span><strong>Device information</strong></div><button class="text-button">View details <svg><use href="#i-arrow"/></svg></button></article><article class="part-detail-card review-card"><div class="detail-card-head"><div class="part-symbol battery-symbol"><svg><use href="#i-battery"/></svg></div><span class="status-badge warning"><i></i>Unknown</span></div><h3>Battery</h3><p>Verification was not available for this component.</p><div class="detail-meta"><span>Recommended action</span><strong>Review before resale</strong></div><button class="text-button">View details <svg><use href="#i-arrow"/></svg></button></article><article class="part-detail-card"><div class="detail-card-head"><div class="part-symbol camera-symbol"><svg><use href="#i-tests"/></svg></div><span class="status-badge success"><i></i>Genuine</span></div><h3>Rear camera</h3><p>Apple part record found for this component.</p><div class="detail-meta"><span>Source</span><strong>Device information</strong></div><button class="text-button">View details <svg><use href="#i-arrow"/></svg></button></article><article class="part-detail-card unavailable-card"><div class="detail-card-head"><div class="part-symbol soft-symbol"><svg><use href="#i-parts"/></svg></div><span class="status-badge neutral-badge"><i></i>Unavailable</span></div><h3>Logic board</h3><p>This record is not exposed on the connected model.</p><div class="detail-meta"><span>Result</span><strong>Not available</strong></div><button class="text-button muted-button">Why unavailable <svg><use href="#i-arrow"/></svg></button></article></div>
-          <div class="panel note-panel"><svg><use href="#i-info"/></svg><p><strong>Important:</strong> An Unknown status can mean a component could not be verified. It is not, on its own, proof of a specific repair.</p></div>
+          <div class="parts-summary panel"><div class="parts-summary-mark"><svg><use href="#i-parts"/></svg></div><div><span class="small-label">AVAILABLE RECORDS</span><strong>0 components found</strong><p>Connect a device to inspect available component records.</p></div><div class="summary-side"><span class="status-badge neutral-badge"><i></i>Awaiting scan</span><span>Not scanned</span></div></div>
+          <div class="parts-detail-grid"><div class="panel-empty wide-empty"><svg><use href="#i-parts"/></svg><h3>No parts history yet</h3><p>Connect a trusted iPhone to read the available component records.</p><button class="secondary-button" id="parts-connect">Connect device <svg><use href="#i-usb"/></svg></button></div></div>
+          <div class="panel note-panel"><svg><use href="#i-info"/></svg><p><strong>Note:</strong> Component records will appear after a device scan.</p></div>
         </section>
 
         <section class="view" data-view-panel="tests">
-          <div class="page-heading"><div><div class="eyebrow">DIAGNOSTICS</div><h1>Hardware test suite</h1><p>Run guided checks for the features customers use every day.</p></div><button class="primary-button" id="run-all-tests"><svg><use href="#i-spark"/></svg>Run all tests</button></div>
-          <div class="test-suite-summary panel"><div><span class="small-label">TEST SUITE PROGRESS</span><div class="progress-summary"><strong id="test-count">8 of 10</strong><span>tests passed</span></div><div class="progress-track"><span id="test-progress" style="width:80%"></span></div></div><div class="suite-score"><strong id="suite-percent">80%</strong><span>complete</span></div></div>
-          <div class="test-grid"><article class="test-card passed-card"><div class="test-card-top"><div class="test-symbol"><svg><use href="#i-parts"/></svg></div><span class="status-badge success"><i></i>Passed</span></div><h3>Display and touch</h3><p>Touch grid, brightness and responsive areas.</p><button class="test-action" data-test="display">View result <svg><use href="#i-arrow"/></svg></button></article><article class="test-card passed-card"><div class="test-card-top"><div class="test-symbol"><svg><use href="#i-tests"/></svg></div><span class="status-badge success"><i></i>Passed</span></div><h3>Cameras</h3><p>Front, rear, flash and focus checks.</p><button class="test-action" data-test="cameras">View result <svg><use href="#i-arrow"/></svg></button></article><article class="test-card passed-card"><div class="test-card-top"><div class="test-symbol"><svg><use href="#i-tests"/></svg></div><span class="status-badge success"><i></i>Passed</span></div><h3>Audio system</h3><p>Speakers, earpiece and microphones.</p><button class="test-action" data-test="audio">View result <svg><use href="#i-arrow"/></svg></button></article><article class="test-card pending-card"><div class="test-card-top"><div class="test-symbol"><svg><use href="#i-parts"/></svg></div><span class="status-badge pending-badge"><i></i>Needs confirmation</span></div><h3>Face ID</h3><p>Requires a guided user confirmation.</p><button class="test-action primary-test" data-test="face">Start test <svg><use href="#i-arrow"/></svg></button></article><article class="test-card pending-card"><div class="test-card-top"><div class="test-symbol"><svg><use href="#i-settings"/></svg></div><span class="status-badge pending-badge"><i></i>Needs confirmation</span></div><h3>Physical controls</h3><p>Side button, volume and mute controls.</p><button class="test-action primary-test" data-test="controls">Start test <svg><use href="#i-arrow"/></svg></button></article><article class="test-card"><div class="test-card-top"><div class="test-symbol"><svg><use href="#i-battery"/></svg></div><span class="status-badge neutral-badge"><i></i>Ready</span></div><h3>Charging</h3><p>Port, charging state and accessory response.</p><button class="test-action primary-test" data-test="charging">Start test <svg><use href="#i-arrow"/></svg></button></article></div>
+          <div class="page-heading"><div><div class="eyebrow">DIAGNOSTICS</div><h1>Hardware test suite</h1><p>Run guided checks for the features customers use every day.</p></div><button class="primary-button" id="run-all-tests" disabled><svg><use href="#i-spark"/></svg>Run all tests</button></div>
+          <div class="test-suite-summary panel"><div><span class="small-label">TEST SUITE PROGRESS</span><div class="progress-summary"><strong id="test-count">0 of 0</strong><span>tests ready</span></div><div class="progress-track"><span id="test-progress" style="width:0%"></span></div></div><div class="suite-score"><strong id="suite-percent">0%</strong><span>complete</span></div></div>
+          <div class="test-grid"><div class="panel-empty wide-empty"><svg><use href="#i-tests"/></svg><h3>Test suite is waiting</h3><p>Connect a trusted iPhone to unlock guided hardware tests.</p><button class="secondary-button" id="tests-connect">Connect device <svg><use href="#i-usb"/></svg></button></div></div>
         </section>
 
         <section class="view" data-view-panel="reports">
-          <div class="page-heading"><div><div class="eyebrow">DOCUMENT CENTER</div><h1>Inspection report</h1><p>A clear record for your customer, your team or your next decision.</p></div><button class="primary-button" id="export-report"><svg><use href="#i-download"/></svg>Export report</button></div>
-          <div class="report-preview panel"><div class="report-preview-header"><div class="report-brand"><div class="brand-mark small"><span></span><span></span><span></span><span></span><b></b></div><div><strong>Very<span>FY</span></strong><small>DEVICE INSPECTION</small></div></div><span class="report-tag">PREVIEW</span></div><div class="report-title-row"><div><span class="small-label">INSPECTION REPORT</span><h2>iPhone 13 Pro</h2><p>Inspected today, 10:42 · USB connection</p></div><div class="report-score"><strong>78</strong><span>/100</span><small>Good condition</small></div></div><div class="report-line"></div><div class="report-report-grid"><div><span class="small-label">BATTERY</span><strong>87%</strong><small>643 cycles · Review recommended</small></div><div><span class="small-label">PARTS</span><strong>3 verified</strong><small>1 component needs review</small></div><div><span class="small-label">HARDWARE</span><strong>8 / 10</strong><small>Two tests need confirmation</small></div></div><div class="report-line"></div><div class="report-footer"><span>Powered by <strong>MASTECH INNOVATIONS</strong></span><span>info@mastechinnovations.com.ng · +234 913 882 5300</span></div></div>
-          <div class="report-actions"><button class="secondary-button" id="save-inspection"><svg><use href="#i-report"/></svg>Save inspection</button><button class="secondary-button" id="print-report"><svg><use href="#i-report"/></svg>Print preview</button><button class="text-button" id="copy-report">Copy summary <svg><use href="#i-arrow"/></svg></button></div>
+          <div class="page-heading"><div><div class="eyebrow">DOCUMENT CENTER</div><h1>Inspection report</h1><p>A clear record for your customer, your team or your next decision.</p></div><button class="primary-button" id="export-report" disabled><svg><use href="#i-download"/></svg>Export report</button></div>
+          <div class="report-preview panel report-empty" id="report-preview"><div class="panel-empty wide-empty"><svg><use href="#i-report"/></svg><h3>No inspection report yet</h3><p>Complete a device inspection to generate a report.</p><button class="secondary-button" id="report-connect">Connect device <svg><use href="#i-usb"/></svg></button></div></div><div class="report-actions"><button class="secondary-button" id="save-inspection" disabled><svg><use href="#i-report"/></svg>Save inspection</button><button class="secondary-button" id="print-report" disabled><svg><use href="#i-report"/></svg>Print preview</button><button class="text-button" id="copy-report" disabled>Copy summary <svg><use href="#i-arrow"/></svg></button></div>
         </section>
 
         <section class="view" data-view-panel="history">
           <div class="page-heading"><div><div class="eyebrow">RECORDS</div><h1>Inspection history</h1><p>Keep every assessment organised and easy to retrieve.</p></div><button class="secondary-button"><svg><use href="#i-filter"/></svg>Filter records</button></div>
-          <div class="history-toolbar"><div class="search-field"><svg><use href="#i-search"/></svg><input placeholder="Search by model or serial number" /></div><span>2 inspections</span></div>
-          <div class="panel history-panel"><div class="table-wrap"><table><thead><tr><th>Device</th><th>Condition</th><th>Battery</th><th>Inspected</th><th>Status</th><th></th></tr></thead><tbody id="history-table-body"><tr><td><div class="table-device"><span class="table-device-icon"><svg><use href="#i-parts"/></svg></span><span><strong>iPhone 13 Pro</strong><small>F2L4••••7J9</small></span></div></td><td><span class="condition-text">Good <small>78/100</small></span></td><td>87%</td><td>Today, 10:42</td><td><span class="table-status ready"><i></i>Report ready</span></td><td><button class="row-arrow"><svg><use href="#i-chevron"/></svg></button></td></tr><tr><td><div class="table-device"><span class="table-device-icon"><svg><use href="#i-parts"/></svg></span><span><strong>iPhone 12</strong><small>G6T8••••2Q1</small></span></div></td><td><span class="condition-text">Fair <small>64/100</small></span></td><td>79%</td><td>Yesterday, 16:08</td><td><span class="table-status review"><i></i>Needs review</span></td><td><button class="row-arrow"><svg><use href="#i-chevron"/></svg></button></td></tr></tbody></table></div></div>
+          <div class="history-toolbar"><div class="search-field"><svg><use href="#i-search"/></svg><input placeholder="Search by model or serial number" /></div><span id="history-count">0 inspections</span></div>
+          <div class="panel history-panel"><div class="table-wrap"><table><thead><tr><th>Device</th><th>Condition</th><th>Battery</th><th>Inspected</th><th>Status</th><th></th></tr></thead><tbody id="history-table-body"><tr><td colspan="6"><span class="empty-history">No saved inspections yet.</span></td></tr></tbody></table></div></div>
         </section>
 
         <section class="view" data-view-panel="settings">
           <div class="page-heading"><div><div class="eyebrow">WORKSPACE</div><h1>Settings</h1><p>Configure the way iVeryFY works for your team.</p></div></div>
-          <div class="settings-grid"><article class="panel settings-card"><div class="settings-icon"><svg><use href="#i-report"/></svg></div><div><h3>Report identity</h3><p>Company details used on generated reports.</p></div><button class="setting-row"><span>MASTECH INNOVATIONS</span><svg><use href="#i-chevron"/></svg></button><button class="setting-row"><span>info@mastechinnovations.com.ng</span><svg><use href="#i-chevron"/></svg></button></article><article class="panel settings-card"><div class="settings-icon"><svg><use href="#i-settings"/></svg></div><div><h3>Preferences</h3><p>Adjust display, data and inspection defaults.</p></div><button class="setting-row"><span>Light appearance</span><span class="toggle on"><i></i></span></button><button class="setting-row"><span>Save inspection history</span><span class="toggle on"><i></i></span></button></article></div>
+          <div class="settings-grid"><article class="panel settings-card"><div class="settings-icon"><svg><use href="#i-report"/></svg></div><div><h3>Report identity</h3><p>Company details used on generated reports.</p></div><button class="setting-row"><span>MASTECH INNOVATIONS</span><svg><use href="#i-chevron"/></svg></button><button class="setting-row"><span>info@mastechinnovations.com.ng</span><svg><use href="#i-chevron"/></svg></button></article><article class="panel settings-card"><div class="settings-icon"><svg><use href="#i-settings"/></svg></div><div><h3>Preferences</h3><p>Adjust display, data and inspection defaults.</p></div><button class="setting-row" id="theme-toggle" type="button"><span>Light appearance</span><span class="toggle on" id="theme-toggle-control"><i></i></span></button><button class="setting-row" id="history-toggle" type="button"><span>Save inspection history</span><span class="toggle on" id="history-toggle-control"><i></i></span></button></article></div>
         </section>
       </div>
     </main>
@@ -241,7 +233,7 @@
     <div class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
       <button class="modal-close" id="auth-close" aria-label="Close"><span></span><span></span></button>
       <div class="modal-symbol"><svg><use href="#i-settings"/></svg></div>
-      <div class="eyebrow">IVERYFY CLOUD</div>
+      <div class="eyebrow">WORKSPACE ACCOUNT</div>
       <h2 id="auth-title">Sign in to iVeryFY</h2>
       <p>Save inspections securely and keep your team history available across the workspace.</p>
       <form id="auth-form" class="auth-form">
@@ -252,7 +244,7 @@
         <div class="auth-error" id="auth-error" role="status"></div>
         <button class="primary-button auth-submit" type="submit" id="auth-submit">Sign in</button>
       </form>
-      <div class="auth-note"><svg><use href="#i-info"/></svg><span>Authentication is managed securely by Supabase.</span></div>
+      <div class="auth-note"><svg><use href="#i-info"/></svg><span>Your account keeps inspection history connected to your workspace.</span></div>
     </div>
   </div>
 
@@ -269,7 +261,7 @@
     </div>
   </div>
 
-  <div class="toast" id="toast"><span class="toast-icon"><svg><use href="#i-check"/></svg></span><span id="toast-message">Report exported successfully</span></div>
+  <div class="toast" id="toast"><span class="toast-icon"><svg><use href="#i-check"/></svg></span><span id="toast-message">Ready</span></div>
   <script src="vercel-config.js"></script>
   <script src="web-auth.js"></script>
   <script src="app.js"></script>
