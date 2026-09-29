@@ -1,6 +1,7 @@
 const state = {
   currentView: "overview",
   testsComplete: false,
+  auth: { configured: false, signedIn: false, email: null },
 };
 
 const viewNames = {
@@ -51,11 +52,52 @@ function updateConnectionState(state) {
   indicator.classList.toggle("is-warning", !state.connected);
 }
 
+function updateAuthState(auth) {
+  state.auth = { ...state.auth, ...auth };
+  const accountButton = document.getElementById("account-button");
+  const accountLabel = document.querySelector(".account-label");
+  if (!accountButton || !accountLabel) return;
+  accountButton.classList.toggle("signed-in", Boolean(state.auth.signedIn));
+  accountLabel.textContent = state.auth.signedIn ? (state.auth.email || "Signed in") : "Sign in";
+}
+
+function openAuthModal() {
+  const authModal = document.getElementById("auth-modal");
+  if (!authModal) return;
+  authModal.classList.add("open");
+  authModal.setAttribute("aria-hidden", "false");
+  document.getElementById("auth-error").textContent = "";
+  setTimeout(() => document.getElementById("auth-email")?.focus(), 100);
+}
+
+function closeAuthModal() {
+  const authModal = document.getElementById("auth-modal");
+  if (!authModal) return;
+  authModal.classList.remove("open");
+  authModal.setAttribute("aria-hidden", "true");
+}
+
+async function refreshCloudHistory() {
+  if (!window.veryfy?.listInspections || !state.auth.signedIn) return;
+  const result = await window.veryfy.listInspections();
+  if (result.ok) renderInspectionHistory(result.inspections);
+}
+
 if (window.veryfy?.onDeviceState) {
   window.veryfy.onDeviceState(updateConnectionState);
   window.veryfy.getCloudStatus?.().then((cloud) => {
-    if (cloud?.configured) showToast("VeryFY Cloud is connected");
+    updateAuthState(cloud);
+    if (cloud?.configured && !cloud?.signedIn) showToast("Sign in to save inspections to VeryFY Cloud");
   }).catch(() => {});
+  window.veryfy.getAuthStatus?.().then(updateAuthState).catch(() => {});
+  window.veryfy.onAuthState?.((auth) => {
+    updateAuthState(auth);
+    if (auth.signedIn) {
+      closeAuthModal();
+      showToast("Signed in to VeryFY Cloud");
+      refreshCloudHistory();
+    }
+  });
 }
 
 navItems.forEach((item) => item.addEventListener("click", () => showView(item.dataset.view)));
@@ -68,6 +110,55 @@ document.querySelectorAll(".row-arrow").forEach((button) => {
     showView("reports");
     showToast("Inspection report opened");
   });
+});
+
+document.getElementById("account-button")?.addEventListener("click", () => {
+  if (state.auth.signedIn) {
+    window.veryfy?.signOut?.().then((result) => {
+      if (result?.ok) {
+        updateAuthState(result.auth);
+        showToast("Signed out of VeryFY Cloud");
+      }
+    });
+    return;
+  }
+  openAuthModal();
+});
+
+document.getElementById("auth-close")?.addEventListener("click", closeAuthModal);
+document.getElementById("auth-modal")?.addEventListener("click", (event) => {
+  if (event.target.id === "auth-modal") closeAuthModal();
+});
+document.getElementById("auth-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+  const error = document.getElementById("auth-error");
+  const submit = document.getElementById("auth-submit");
+  const original = submit.innerHTML;
+  error.textContent = "";
+  submit.disabled = true;
+  submit.innerHTML = '<span class="spinner"></span>Signing in';
+
+  if (!window.veryfy?.signIn) {
+    error.textContent = "Cloud sign in is available in the desktop build.";
+  } else {
+    const result = await window.veryfy.signIn(email, password);
+    if (result.ok) {
+      updateAuthState(result.auth);
+      closeAuthModal();
+      showToast("Signed in to VeryFY Cloud");
+      refreshCloudHistory();
+    } else {
+      error.textContent = result.error || "Sign in could not be completed.";
+    }
+  }
+  submit.disabled = false;
+  submit.innerHTML = original;
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") closeAuthModal();
 });
 
 const modal = document.getElementById("connect-modal");
@@ -215,6 +306,44 @@ document.querySelectorAll(".test-action").forEach((button) => {
   });
 });
 
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>'"]/g, (character) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "'": "&#39;",
+    '"': "&quot;",
+  }[character]));
+}
+
+function renderInspectionHistory(records) {
+  const bodies = [document.getElementById("recent-table-body"), document.getElementById("history-table-body")].filter(Boolean);
+  if (!bodies.length) return;
+  if (!records?.length) {
+    bodies.forEach((body) => {
+      body.innerHTML = '<tr><td colspan="6"><span class="empty-history">No cloud inspections have been saved yet.</span></td></tr>';
+    });
+    return;
+  }
+
+  const rows = records.map((record) => {
+    const score = Number(record.condition_score || 0);
+    const condition = score >= 75 ? "Good" : score >= 55 ? "Fair" : "Review";
+    const date = record.created_at ? new Date(record.created_at).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "Recently";
+    const battery = record.battery_health == null ? "Not available" : `${escapeHtml(record.battery_health)}%`;
+    return `<tr><td><div class="table-device"><span class="table-device-icon"><svg><use href="#i-parts"/></svg></span><span><strong>${escapeHtml(record.device_model || "Unknown device")}</strong><small>${escapeHtml(record.serial_last4 ? `••••${record.serial_last4}` : "Serial unavailable")}</small></span></div></td><td><span class="condition-text">${condition} <small>${escapeHtml(score)}/100</small></span></td><td>${battery}</td><td>${escapeHtml(date)}</td><td><span class="table-status ready"><i></i>Report ready</span></td><td><button class="row-arrow" data-open-report aria-label="Open inspection"><svg><use href="#i-chevron"/></svg></button></td></tr>`;
+  }).join("");
+  bodies.forEach((body) => {
+    body.innerHTML = rows;
+    body.querySelectorAll("[data-open-report]").forEach((button) => {
+      button.addEventListener("click", () => {
+        showView("reports");
+        showToast("Inspection report opened");
+      });
+    });
+  });
+}
+
 const reportText = `VeryFY Device Inspection\n\nDevice: iPhone 13 Pro\nSerial: F2L4••••7J9\niOS: 18.6.2\nInspection: Today, 10:42\n\nOverall condition: Good, 78/100\nBattery health: 87%\nCycle count: 643\nParts: 3 verified, 1 needs review\nHardware tests: 8 of 10 complete\n\nPowered by MASTECH INNOVATIONS\ninfo@mastechinnovations.com.ng\n+234 913 882 5300`;
 
 const inspectionPayload = {
@@ -245,9 +374,17 @@ document.getElementById("save-inspection")?.addEventListener("click", async (eve
   const result = await window.veryfy.saveInspection(inspectionPayload);
   button.disabled = false;
   button.innerHTML = original;
-  if (result.ok) showToast("Inspection saved to VeryFY Cloud");
-  else if (!result.configured) showToast("Add Supabase credentials to enable cloud saving");
-  else showToast(result.error || "Inspection could not be saved");
+  if (result.ok) {
+    showToast("Inspection saved to VeryFY Cloud");
+    refreshCloudHistory();
+  } else if (!result.configured) {
+    showToast("Add Supabase credentials to enable cloud saving");
+  } else if (result.authenticated === false) {
+    showToast("Sign in before saving inspections");
+    openAuthModal();
+  } else {
+    showToast(result.error || "Inspection could not be saved");
+  }
 });
 
 document.getElementById("export-report")?.addEventListener("click", () => {

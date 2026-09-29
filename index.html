@@ -79,7 +79,7 @@
         <div class="topbar-actions">
           <div class="connection-state" id="connection-state"><i id="connection-indicator"></i><span id="connection-label">Service ready</span></div>
           <button class="icon-button mobile-menu" id="mobile-menu" aria-label="Open menu"><span></span><span></span><span></span></button>
-          <div class="avatar">AM</div>
+          <button class="account-button" id="account-button" aria-label="Open account"><span class="avatar">AM</span><span class="account-label">Sign in</span></button>
         </div>
       </header>
 
@@ -190,7 +190,7 @@
 
           <div class="panel recent-panel">
             <div class="panel-header"><div><div class="eyebrow">RECENT ACTIVITY</div><h3>Inspection history</h3></div><button class="panel-link" data-view-target="history">See history <svg><use href="#i-arrow"/></svg></button></div>
-            <div class="table-wrap"><table><thead><tr><th>Device</th><th>Condition</th><th>Battery</th><th>Inspected</th><th>Status</th><th></th></tr></thead><tbody>
+            <div class="table-wrap"><table><thead><tr><th>Device</th><th>Condition</th><th>Battery</th><th>Inspected</th><th>Status</th><th></th></tr></thead><tbody id="recent-table-body">
               <tr><td><div class="table-device"><span class="table-device-icon"><svg><use href="#i-parts"/></svg></span><span><strong>iPhone 13 Pro</strong><small>F2L4••••7J9</small></span></div></td><td><span class="condition-text">Good <small>78/100</small></span></td><td>87%</td><td>Today, 10:42</td><td><span class="table-status ready"><i></i>Report ready</span></td><td><button class="row-arrow" aria-label="Open inspection"><svg><use href="#i-chevron"/></svg></button></td></tr>
               <tr><td><div class="table-device"><span class="table-device-icon"><svg><use href="#i-parts"/></svg></span><span><strong>iPhone 12</strong><small>G6T8••••2Q1</small></span></div></td><td><span class="condition-text">Fair <small>64/100</small></span></td><td>79%</td><td>Yesterday, 16:08</td><td><span class="table-status review"><i></i>Needs review</span></td><td><button class="row-arrow" aria-label="Open inspection"><svg><use href="#i-chevron"/></svg></button></td></tr>
             </tbody></table></div>
@@ -226,7 +226,7 @@
         <section class="view" data-view-panel="history">
           <div class="page-heading"><div><div class="eyebrow">RECORDS</div><h1>Inspection history</h1><p>Keep every assessment organised and easy to retrieve.</p></div><button class="secondary-button"><svg><use href="#i-filter"/></svg>Filter records</button></div>
           <div class="history-toolbar"><div class="search-field"><svg><use href="#i-search"/></svg><input placeholder="Search by model or serial number" /></div><span>2 inspections</span></div>
-          <div class="panel history-panel"><div class="table-wrap"><table><thead><tr><th>Device</th><th>Condition</th><th>Battery</th><th>Inspected</th><th>Status</th><th></th></tr></thead><tbody><tr><td><div class="table-device"><span class="table-device-icon"><svg><use href="#i-parts"/></svg></span><span><strong>iPhone 13 Pro</strong><small>F2L4••••7J9</small></span></div></td><td><span class="condition-text">Good <small>78/100</small></span></td><td>87%</td><td>Today, 10:42</td><td><span class="table-status ready"><i></i>Report ready</span></td><td><button class="row-arrow"><svg><use href="#i-chevron"/></svg></button></td></tr><tr><td><div class="table-device"><span class="table-device-icon"><svg><use href="#i-parts"/></svg></span><span><strong>iPhone 12</strong><small>G6T8••••2Q1</small></span></div></td><td><span class="condition-text">Fair <small>64/100</small></span></td><td>79%</td><td>Yesterday, 16:08</td><td><span class="table-status review"><i></i>Needs review</span></td><td><button class="row-arrow"><svg><use href="#i-chevron"/></svg></button></td></tr></tbody></table></div></div>
+          <div class="panel history-panel"><div class="table-wrap"><table><thead><tr><th>Device</th><th>Condition</th><th>Battery</th><th>Inspected</th><th>Status</th><th></th></tr></thead><tbody id="history-table-body"><tr><td><div class="table-device"><span class="table-device-icon"><svg><use href="#i-parts"/></svg></span><span><strong>iPhone 13 Pro</strong><small>F2L4••••7J9</small></span></div></td><td><span class="condition-text">Good <small>78/100</small></span></td><td>87%</td><td>Today, 10:42</td><td><span class="table-status ready"><i></i>Report ready</span></td><td><button class="row-arrow"><svg><use href="#i-chevron"/></svg></button></td></tr><tr><td><div class="table-device"><span class="table-device-icon"><svg><use href="#i-parts"/></svg></span><span><strong>iPhone 12</strong><small>G6T8••••2Q1</small></span></div></td><td><span class="condition-text">Fair <small>64/100</small></span></td><td>79%</td><td>Yesterday, 16:08</td><td><span class="table-status review"><i></i>Needs review</span></td><td><button class="row-arrow"><svg><use href="#i-chevron"/></svg></button></td></tr></tbody></table></div></div>
         </section>
 
         <section class="view" data-view-panel="settings">
@@ -235,6 +235,25 @@
         </section>
       </div>
     </main>
+  </div>
+
+  <div class="modal-backdrop" id="auth-modal" aria-hidden="true">
+    <div class="modal auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+      <button class="modal-close" id="auth-close" aria-label="Close"><span></span><span></span></button>
+      <div class="modal-symbol"><svg><use href="#i-settings"/></svg></div>
+      <div class="eyebrow">VERYFY CLOUD</div>
+      <h2 id="auth-title">Sign in to VeryFY</h2>
+      <p>Save inspections securely and keep your team history available across the workspace.</p>
+      <form id="auth-form" class="auth-form">
+        <label for="auth-email">Email address</label>
+        <input id="auth-email" name="email" type="email" autocomplete="email" placeholder="technician@example.com" required />
+        <label for="auth-password">Password</label>
+        <input id="auth-password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required />
+        <div class="auth-error" id="auth-error" role="status"></div>
+        <button class="primary-button auth-submit" type="submit" id="auth-submit">Sign in</button>
+      </form>
+      <div class="auth-note"><svg><use href="#i-info"/></svg><span>Authentication is managed securely by Supabase.</span></div>
+    </div>
   </div>
 
   <div class="modal-backdrop" id="connect-modal" aria-hidden="true">

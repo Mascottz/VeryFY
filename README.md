@@ -28,6 +28,8 @@ The current foundation includes:
 - USB device bridge preparation
 - Apple support prerequisite checks
 - Optional Supabase cloud storage integration
+- Supabase email and password sign-in flow
+- Authenticated inspection saving and cloud history hooks
 - VeryFY inspection database schema
 
 ## Current state
@@ -63,13 +65,15 @@ I use Supabase for inspection history, report metadata, technician accounts and 
 3. Run [`supabase/schema.sql`](supabase/schema.sql).
 4. Copy `.env.example` to `.env`.
 5. Add the project URL and publishable anon key to `.env`.
-6. Sign in a technician before saving inspection records in production.
+6. Create a test technician under Authentication, Users.
+7. Sign in from the VeryFY account button before saving inspection records.
+8. Keep row-level security enabled before using the project in production.
 
 ```bash
 cp .env.example .env
 ```
 
-I will never put a Supabase service role key in the desktop application.
+I keep the local Supabase settings in `.env`, which is ignored by Git. I will never put a Supabase service role key in the desktop application.
 
 ## Project layout
 

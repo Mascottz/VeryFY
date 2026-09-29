@@ -41,8 +41,14 @@ function registerIpc() {
   ipcMain.handle('device:prerequisites', () => deviceBridge.checkPrerequisites());
   ipcMain.handle('device:scan', () => deviceBridge.scan());
   ipcMain.handle('cloud:status', () => supabaseService.status());
+  ipcMain.handle('auth:status', () => supabaseService.authStatus());
+  ipcMain.handle('auth:sign-in', (_event, credentials) => supabaseService.signIn(credentials.email, credentials.password));
+  ipcMain.handle('auth:sign-out', () => supabaseService.signOut());
   ipcMain.handle('cloud:save-inspection', (_event, inspection) => supabaseService.saveInspection(inspection));
   ipcMain.handle('cloud:list-inspections', () => supabaseService.listInspections());
+  supabaseService.onAuthStateChange((state) => {
+    if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('auth:state', state);
+  });
 }
 
 app.whenReady().then(() => {
