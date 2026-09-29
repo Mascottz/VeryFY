@@ -1,6 +1,7 @@
 const path = require('path');
 const dotenv = require('dotenv');
 const { createClient } = require('@supabase/supabase-js');
+const WebSocket = require('ws');
 
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
@@ -14,6 +15,9 @@ class SupabaseService {
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
+      },
+      realtime: {
+        transport: WebSocket,
       },
     }) : null;
   }
