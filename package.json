@@ -10,6 +10,8 @@
     "start": "electron .",
     "dev": "electron .",
     "web": "python3 -m http.server 4173 --bind 0.0.0.0",
+    "build:web": "node scripts/generate-web-config.cjs",
+    "vercel-build": "npm run build:web",
     "dist": "electron-builder --win nsis"
   },
   "dependencies": {

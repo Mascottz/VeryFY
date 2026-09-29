@@ -77,20 +77,26 @@ function closeAuthModal() {
   authModal.setAttribute("aria-hidden", "true");
 }
 
+function getCloudBridge() {
+  return window.veryfy || window.veryfyWeb || null;
+}
+
 async function refreshCloudHistory() {
-  if (!window.veryfy?.listInspections || !state.auth.signedIn) return;
-  const result = await window.veryfy.listInspections();
+  const bridge = getCloudBridge();
+  if (!bridge?.listInspections || !state.auth.signedIn) return;
+  const result = await bridge.listInspections();
   if (result.ok) renderInspectionHistory(result.inspections);
 }
 
-if (window.veryfy?.onDeviceState) {
-  window.veryfy.onDeviceState(updateConnectionState);
-  window.veryfy.getCloudStatus?.().then((cloud) => {
+function initializeCloudBridge(bridge) {
+  if (!bridge) return;
+  bridge.onDeviceState?.(updateConnectionState);
+  bridge.getCloudStatus?.().then((cloud) => {
     updateAuthState(cloud);
     if (cloud?.configured && !cloud?.signedIn) showToast("Sign in to save inspections to VeryFY Cloud");
   }).catch(() => {});
-  window.veryfy.getAuthStatus?.().then(updateAuthState).catch(() => {});
-  window.veryfy.onAuthState?.((auth) => {
+  bridge.getAuthStatus?.().then(updateAuthState).catch(() => {});
+  bridge.onAuthState?.((auth) => {
     updateAuthState(auth);
     if (auth.signedIn) {
       closeAuthModal();
@@ -99,6 +105,12 @@ if (window.veryfy?.onDeviceState) {
     }
   });
 }
+
+initializeCloudBridge(window.veryfy);
+window.addEventListener("veryfy:web-ready", () => initializeCloudBridge(window.veryfyWeb));
+window.addEventListener("veryfy:web-error", (event) => {
+  if (event.detail) console.warn("VeryFY web cloud bridge error", event.detail);
+});
 
 navItems.forEach((item) => item.addEventListener("click", () => showView(item.dataset.view)));
 document.querySelectorAll("[data-view-target]").forEach((button) => {
@@ -113,8 +125,9 @@ document.querySelectorAll(".row-arrow").forEach((button) => {
 });
 
 document.getElementById("account-button")?.addEventListener("click", () => {
+  const bridge = getCloudBridge();
   if (state.auth.signedIn) {
-    window.veryfy?.signOut?.().then((result) => {
+    bridge?.signOut?.().then((result) => {
       if (result?.ok) {
         updateAuthState(result.auth);
         showToast("Signed out of VeryFY Cloud");
@@ -140,10 +153,11 @@ document.getElementById("auth-form")?.addEventListener("submit", async (event) =
   submit.disabled = true;
   submit.innerHTML = '<span class="spinner"></span>Signing in';
 
-  if (!window.veryfy?.signIn) {
-    error.textContent = "Cloud sign in is available in the desktop build.";
+  const bridge = getCloudBridge();
+  if (!bridge?.signIn) {
+    error.textContent = "Cloud sign in is not configured for this environment.";
   } else {
-    const result = await window.veryfy.signIn(email, password);
+    const result = await bridge.signIn(email, password);
     if (result.ok) {
       updateAuthState(result.auth);
       closeAuthModal();
@@ -364,14 +378,15 @@ document.getElementById("save-inspection")?.addEventListener("click", async (eve
   button.disabled = true;
   button.innerHTML = '<span class="spinner"></span>Saving';
 
-  if (!window.veryfy?.saveInspection) {
+  const bridge = getCloudBridge();
+  if (!bridge?.saveInspection) {
     button.disabled = false;
     button.innerHTML = original;
-    showToast("Cloud saving is available in the desktop build");
+    showToast("Cloud saving is not configured for this environment");
     return;
   }
 
-  const result = await window.veryfy.saveInspection(inspectionPayload);
+  const result = await bridge.saveInspection(inspectionPayload);
   button.disabled = false;
   button.innerHTML = original;
   if (result.ok) {

@@ -1,0 +1,1 @@
+window.VERYFY_CONFIG = {"supabaseUrl":"https://nxwksjsmntdcozsgtrpe.supabase.co","supabaseAnonKey":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im54d2tzanNtbnRkY296c2d0cnBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTA2ODYzODMsImV4cCI6MjEwNjI2MjM4M30.WHjmaRGOAyp24PRuzPJHctWa3fOylVAXUvT4O8WzZf0"};

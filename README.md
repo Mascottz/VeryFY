@@ -42,10 +42,20 @@ The desktop foundation is prepared for the next integration stage. Real USB diag
 
 ```bash
 npm install
+npm run build:web
 npm run web
 ```
 
 Then open the local preview shown by the development environment.
+
+For a Vercel deployment, import the repository and add these project environment variables:
+
+```text
+SUPABASE_URL
+SUPABASE_ANON_KEY
+```
+
+The Vercel build generates a public browser configuration containing only the Supabase URL and anon key. Row-level security and authentication protect the inspection data.
 
 ## Run the desktop foundation
 
